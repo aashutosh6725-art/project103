@@ -236,8 +236,10 @@ Window {
                 // Input bar
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 56
+                    height: Math.min(Math.max(msgInput.implicitHeight + 24, 72), 160)
                     color: "#141414"
+
+                    Behavior on height { NumberAnimation { duration: 100 } }
 
                     RowLayout {
                         anchors.fill: parent
@@ -248,7 +250,7 @@ Window {
                         Rectangle {
                             id: peerSelectorBtn
                             width: 110
-                            height: 36
+                            height: 48
                             radius: 6
                             color: toInput.text !== "" ? "#002a33" : "#1a1a1a"
                             border.color: toInput.text !== "" ? "#00e5ff" : "#2a2a2a"
@@ -330,8 +332,6 @@ Window {
 
                                             Text {
                                                 text: "All"
-
-
                                                 font.pixelSize: 13
                                                 font.bold: true
                                                 font.family: "Consolas"
@@ -430,30 +430,55 @@ Window {
                             }
                         }
 
-                        TextField {
-                            id: msgInput
+                        Rectangle {
                             Layout.fillWidth: true
-                            height: 36
-                            font.pixelSize: 13
-                            font.family: "Consolas"
-                            color: "#ffffff"
-                            placeholderText: "Enter Your Message"
-                            onAccepted: {
-                                if (toInput.text.trim() === "" || msgInput.text.trim() === "") return
-                                backend.sendMessage(toInput.text.trim(), msgInput.text.trim())
-                                msgInput.text = ""
-                            }
+                            height: Math.min(Math.max(msgInput.implicitHeight + 16, 48), 136)
+                            radius: 6
+                            color: "#1a1a1a"
+                            border.color: msgInput.activeFocus ? "#00e5ff" : "#2a2a2a"
+                            border.width: 1
 
-                            background: Rectangle {
-                                radius: 6
-                                color: "#1a1a1a"
-                                border.color: msgInput.activeFocus ? "#00e5ff" : "#2a2a2a"
+                            Behavior on height { NumberAnimation { duration: 100 } }
+
+                            ScrollView {
+                                anchors.fill: parent
+                                anchors.margins: 4
+                                clip: true
+                                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+
+                                TextArea {
+                                    id: msgInput
+                                    width: parent.width
+                                    font.pixelSize: 17
+                                    font.family: "Consolas"
+                                    color: "#ffffff"
+                                    leftPadding: 10
+                                    rightPadding: 10
+                                    topPadding: 8
+                                    bottomPadding: 8
+                                    wrapMode: TextArea.Wrap
+                                    placeholderText: "Enter Your Message"
+                                    background: null
+ verticalAlignment: Text.AlignVCenter
+
+                                    Keys.onReturnPressed: (event) => {
+                                        if (event.modifiers & Qt.ShiftModifier) {
+                                            event.accepted = false
+                                        } else {
+                                            if (toInput.text.trim() === "" || msgInput.text.trim() === "") return
+                                            backend.sendMessage(toInput.text.trim(), msgInput.text.trim())
+                                            msgInput.text = ""
+                                            event.accepted = true
+                                        }
+                                    }
+                                }
                             }
                         }
 
                         Rectangle {
                             width: 44
-                            height: 36
+                            height: 48
                             radius: 6
                             color: (toInput.text !== "" && msgInput.text !== "") ? "#00e5ff" : "#1a1a1a"
 
